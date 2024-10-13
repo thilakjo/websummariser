@@ -1,28 +1,15 @@
-
-from selenium.webdriver import Remote, ChromeOptions
-from selenium.webdriver.chromium.remote_connection import ChromiumRemoteConnection
+import requests
 from bs4 import BeautifulSoup
 
-SBR_WEBDRIVER = "https://brd-customer-hl_6cfa0269-zone-scraper:99ten6athw7t@brd.superproxy.io:9515"
-
 def scrape_website(website):
-  print ("launching chrome browser...")
-  sbr_connection = ChromiumRemoteConnection(SBR_WEBDRIVER, "goog", "chrome")
-  with Remote(sbr_connection, options=ChromeOptions()) as driver:
-      driver.get(website)
-      print("Waiting captcha to solve...")
-      solve_res = driver.execute(
-          "executeCdpCommand",
-          {
-              "cmd": "Captcha.waitForSolve",
-              "params": {"detectTimeout": 10000},
-          },
-      )
-      print("Captcha solve status:", solve_res["value"]["status"])
-      print("Navigated! Scraping page content...")
-      html = driver.page_source
-      return html
-  
+    print("Scraping website...")
+    response = requests.get(website)
+    if response.status_code == 200:
+        print("Successfully retrieved the webpage.")
+        return response.text
+    else:
+        print(f"Failed to retrieve the webpage. Status code: {response.status_code}")
+        return ""
 
 def extract_body_content(html_content):
     soup = BeautifulSoup(html_content, "html.parser")
@@ -30,7 +17,6 @@ def extract_body_content(html_content):
     if body_content:
         return str(body_content)
     return ""
-
 
 def clean_body_content(body_content):
     soup = BeautifulSoup(body_content, "html.parser")
@@ -46,21 +32,7 @@ def clean_body_content(body_content):
 
     return cleaned_content
 
-
 def split_dom_content(dom_content, max_length=6000):
     return [
         dom_content[i : i + max_length] for i in range(0, len(dom_content), max_length)
     ]
-
-
-
-    
-
-# /////
-
-# from dotenv import load_dotenv
-# import os
-
-# load_dotenv()
-
-
