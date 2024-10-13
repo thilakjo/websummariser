@@ -32,7 +32,7 @@ if st.button("Scrape Website"):
 if "dom_content" in st.session_state:
     parse_description = st.text_area("Describe what you want to parse")
 
-    if st.button("Parse the Content"):
+    if st.button("Parse the content"):
         if parse_description:
             st.write("Parsing the content...")
 

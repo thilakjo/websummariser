@@ -1,15 +1,26 @@
-import requests
+from selenium.webdriver import Remote, ChromeOptions
+from selenium.webdriver.chromium.remote_connection import ChromiumRemoteConnection
 from bs4 import BeautifulSoup
 
+SBR_WEBDRIVER = "https://brd-customer-hl_6cfa0269-zone-scraper:99ten6athw7t@brd.superproxy.io:9515"
+
 def scrape_website(website):
-    print("Scraping website...")
-    response = requests.get(website)
-    if response.status_code == 200:
-        print("Successfully retrieved the webpage.")
-        return response.text
-    else:
-        print(f"Failed to retrieve the webpage. Status code: {response.status_code}")
-        return ""
+    print("Launching Chrome browser...")
+    sbr_connection = ChromiumRemoteConnection(SBR_WEBDRIVER, "goog", "chrome")
+    with Remote(sbr_connection, options=ChromeOptions()) as driver:
+        driver.get(website)
+        print("Waiting for captcha to solve...")
+        solve_res = driver.execute(
+            "executeCdpCommand",
+            {
+                "cmd": "Captcha.waitForSolve",
+                "params": {"detectTimeout": 10000},
+            },
+        )
+        print("Captcha solve status:", solve_res["value"]["status"])
+        print("Navigated! Scraping page content...")
+        html = driver.page_source
+        return html
 
 def extract_body_content(html_content):
     soup = BeautifulSoup(html_content, "html.parser")
