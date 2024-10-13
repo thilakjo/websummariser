@@ -27,7 +27,9 @@ def parse_with_ollama(dom_chunks, parse_description):
             print(f"Parsed batch: {i} of {len(dom_chunks)}")
             parsed_results.append(response)
         except Exception as e:
-            print(f"Error during parsing chunk {i}: {e}")
-            parsed_results.append(f"Error parsing chunk {i}")
+            # Log the specific error encountered
+            error_message = f"Error during parsing chunk {i}: {str(e)}"
+            print(error_message)  # Print to console for debugging
+            parsed_results.append(error_message)  # Append error message to results
 
     return "\n".join(parsed_results)
